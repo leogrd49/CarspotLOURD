@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarspotLourd", "CarspotLourd.csproj", "{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{259F5EF9-C9DA-40C9-A0B4-5403C11598C9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5896F9B9-1D35-491A-AA9F-15A074FA68BA}
+	EndGlobalSection
+EndGlobal

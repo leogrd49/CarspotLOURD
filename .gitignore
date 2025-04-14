@@ -1,0 +1,148 @@
+# Visual Studio files
+.vs/
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# MAUI / Xamarin specific
+**/[Rr]esource.[Dd]esigner.cs
+**/*.g.cs
+**/Resource.designer.cs
+**/Resources/Resource.designer.cs
+**/*.designer.cs
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+# Build Results of an ATL Project
+[Dd]ebugPS/
+[Rr]eleasePS/
+dlldata.c
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_i.h
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# TeamCity
+_TeamCity*
+
+# DotCover
+*.dotCover
+
+# AxoCover
+.axoCover/*
+!.axoCover/settings.json
+
+# Coverlet
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# LocalHistory in VS Code
+.history/
+
+# User-specific files
+*.rsuser
+
+# .NET Core
+*.swp
+
+# VS Code folders
+.vscode/
+
+# Android / Xamarin specific
+**/*.apk
+**/*.aab
+**/*.aar
+**/Resource.Designer.cs
+**/*-Signed.apk
+**/*_TemporaryKey.pfx
+**/google-services.json
+
+# iOS / Xamarin specific
+**/*.ipa
+**/*.dSYM.zip
+**/*.dSYM
+**/xcuserdata/
+**/*.xccheckout
+**/*.xcscmblueprint
+**/*.xcworkspace
+**/*.xcuserstate
+**/*.mobileprovision
+
+# macOS
+.DS_Store
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride

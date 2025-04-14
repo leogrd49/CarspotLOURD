@@ -1,0 +1,77 @@
+﻿@page "/http-test"
+@using System.Net.Http
+@using System.Text.Json
+
+<h3>Test de connexion HTTP</h3>
+
+<button class="btn btn-primary" @onclick="TestConnection">Tester la connexion</button>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <div class="@(isSuccess ? "alert alert-success" : "alert alert-danger") mt-3">
+        <h4>Résultat:</h4>
+        <pre style="white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto;">@resultMessage</pre>
+    </div>
+}
+
+@code {
+    private string resultMessage;
+    private bool isSuccess;
+
+    private async Task TestConnection()
+    {
+        try
+        {
+            resultMessage = "Test en cours...";
+            StateHasChanged();
+
+            // Création d'un HttpClient avec bypass de vérification SSL
+            var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+                };
+
+            using var client = new HttpClient(handler);
+
+            // Configuration pour Supabase (remplacez par vos valeurs réelles)
+            string supabaseUrl = "https://vdvqdycepxncqzdgqdee.supabase.co";
+            string supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkdnFkeWNlcHhuY3F6ZGdxZGVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MDI4NDgsImV4cCI6MjA1OTE3ODg0OH0.qatJcK6-o31ZDU8odJq01csRZaikKK4iBx7tcYNq_0w";
+
+            // Construire l'URL complète pour la requête
+            string requestUrl = $"{supabaseUrl}/rest/v1/user_collections?select=*&limit=1";
+
+            // Ajouter tous les en-têtes nécessaires pour Supabase
+            client.DefaultRequestHeaders.Add("apikey", supabaseKey);
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {supabaseKey}");
+            client.DefaultRequestHeaders.Add("Prefer", "return=representation");
+            // Ne pas ajouter Content-Type dans les DefaultRequestHeaders
+
+            Console.WriteLine($"Test de connexion à {requestUrl}");
+
+            var response = await client.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                resultMessage = $"Connexion réussie! Réponse: {content}";
+                isSuccess = true;
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                resultMessage = $"Échec de la connexion. Code: {response.StatusCode}, Raison: {response.ReasonPhrase}\n\nContenu: {content}";
+                isSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            resultMessage = $"Erreur: {ex.Message}";
+            if (ex.InnerException != null)
+            {
+                resultMessage += $"\nInner Exception: {ex.InnerException.Message}";
+            }
+            isSuccess = false;
+            Console.WriteLine($"Erreur lors du test de connexion: {ex}");
+        }
+    }
+}

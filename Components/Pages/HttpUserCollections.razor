@@ -1,0 +1,76 @@
+@page "/http-user-collections"
+@using CarspotLourd.Models
+@using CarspotLourd.Services
+@inject HttpSupabaseService HttpSupabaseService
+
+<h3>User Collections (via HTTP direct)</h3>
+
+@if (isLoading)
+{
+    <p><em>Chargement...</em></p>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        <h4>Une erreur s'est produite :</h4>
+        <p>@errorMessage</p>
+    </div>
+}
+else if (collections == null || collections.Count == 0)
+{
+    <p>Aucune donnée trouvée.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Model ID</th>
+                <th>Spotted</th>
+                <th>Created At</th>
+                <th>Location</th>
+                <th>Is Public</th>
+                <th>Superspot</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var collection in collections)
+            {
+                <tr>
+                    <td>@collection.Id</td>
+                    <td>@collection.UserId</td>
+                    <td>@collection.ModelId</td>
+                    <td>@collection.Spotted</td>
+                    <td>@(collection.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                    <td>@collection.Location</td>
+                    <td>@collection.IsPublic</td>
+                    <td>@collection.Superspot</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UserCollection> collections;
+    private bool isLoading = true;
+    private string errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            collections = await HttpSupabaseService.GetUserCollectionsAsync();
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            isLoading = false;
+            errorMessage = $"Erreur: {ex.Message}";
+            Console.WriteLine($"Erreur détaillée: {ex}");
+        }
+    }
+}
