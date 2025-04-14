@@ -1,6 +1,12 @@
-﻿<Router AppAssembly="@typeof(MauiProgram).Assembly">
+@using Microsoft.AspNetCore.Components.Routing
+
+<Router AppAssembly="@typeof(MauiProgram).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.BasePage)" />
     </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(Layout.BasePage)">
+            <p>Page non trouvée.</p>
+        </LayoutView>
+    </NotFound>
 </Router>

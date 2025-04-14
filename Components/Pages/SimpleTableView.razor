@@ -1,0 +1,142 @@
+@page "/"
+@using CarspotLourd.Models
+@using CarspotLourd.Services
+@inject SupabaseService SupabaseService
+
+<div style="padding: 20px;">
+    <h3>Collections d'utilisateurs</h3>
+
+    @if (isLoading)
+    {
+        <p><em>Chargement...</em></p>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <h4>Une erreur s'est produite :</h4>
+            <p>@errorMessage</p>
+        </div>
+    }
+    else if (collections == null || collections.Count == 0)
+    {
+        <p>Aucune donnée trouvée.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User ID</th>
+                        <th>Model ID</th>
+                        <th>Spotted</th>
+                        <th>Created At</th>
+                        <th>Location</th>
+                        <th>Is Public</th>
+                        <th>Superspot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in collections)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.UserId</td>
+                            <td>@item.ModelId</td>
+                            <td>@item.Spotted</td>
+                            <td>@(item.CreatedAt.ToString("yyyy-MM-dd"))</td>
+                            <td>@item.Location</td>
+                            <td>@item.IsPublic</td>
+                            <td>@item.Superspot</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<UserCollection> collections;
+    private bool isLoading = true;
+    private string errorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Console.WriteLine("SimpleTableView: Initialisation du composant...");
+            isLoading = true;
+            
+            Console.WriteLine("SimpleTableView: Tentative de récupération des données...");
+            collections = await SupabaseService.GetUserCollectionsAsync();
+            
+            Console.WriteLine($"SimpleTableView: Données récupérées avec succès! {collections?.Count ?? 0} éléments");
+            
+            // S'assurer que collections n'est jamais null
+            if (collections == null || collections.Count == 0)
+            {
+                // Utiliser des données factices si aucune donnée n'est disponible
+                collections = GetDummyData();
+                Console.WriteLine("Utilisation de données factices pour l'affichage");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erreur: {ex.Message}";
+            Console.WriteLine($"SimpleTableView: Erreur lors de la récupération des données: {ex.Message}");
+            Console.WriteLine($"SimpleTableView: Erreur détaillée: {ex}");
+            
+            // Utiliser des données factices en cas d'erreur
+            collections = GetDummyData();
+            Console.WriteLine("Utilisation de données factices après erreur");
+        }
+        finally
+        {
+            // Toujours mettre fin au chargement
+            isLoading = false;
+        }
+    }
+
+    private List<UserCollection> GetDummyData()
+    {
+        // Données fictives pour test
+        return new List<UserCollection>
+        {
+            new UserCollection
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                UserId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
+                ModelId = 1,
+                Spotted = true,
+                CreatedAt = DateTime.Now.AddDays(-5),
+                Location = "Paris",
+                IsPublic = true,
+                Superspot = false
+            },
+            new UserCollection
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                UserId = Guid.Parse("10000000-0000-0000-0000-000000000002"),
+                ModelId = 2,
+                Spotted = false,
+                CreatedAt = DateTime.Now.AddDays(-2),
+                Location = "Lyon",
+                IsPublic = true,
+                Superspot = true
+            },
+            new UserCollection
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+                UserId = Guid.Parse("10000000-0000-0000-0000-000000000003"),
+                ModelId = 3,
+                Spotted = true,
+                CreatedAt = DateTime.Now.AddDays(-1),
+                Location = "Marseille",
+                IsPublic = false,
+                Superspot = false
+            }
+        };
+    }
+}

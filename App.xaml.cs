@@ -1,4 +1,4 @@
-﻿namespace CarspotLourd
+namespace CarspotLourd
 {
     public partial class App : Application
     {
@@ -6,6 +6,7 @@
         {
             InitializeComponent();
 
+            // Utiliser directement MainPage au lieu de AppShell
             MainPage = new MainPage();
         }
     }

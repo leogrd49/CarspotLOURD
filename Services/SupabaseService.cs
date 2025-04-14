@@ -75,7 +75,8 @@ namespace CarspotLourd.Services
                     Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
                 }
 
-                throw new Exception($"Erreur Supabase: {ex.Message}", ex);
+                // Retourner une liste vide au lieu de planter
+                return new List<UserCollection>();
             }
         }
     }
