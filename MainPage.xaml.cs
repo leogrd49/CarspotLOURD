@@ -1,4 +1,5 @@
 using CarspotLourd.Services;
+using CarspotLourd.Models;
 using System.IO;
 
 namespace CarspotLourd
@@ -34,11 +35,8 @@ namespace CarspotLourd
                 loadingIndicator.IsRunning = true;
                 loadingIndicator.IsVisible = true;
 
-                // Récupérer les données depuis Supabase
-                var collections = await _dataService.GetUserCollectionsAsync();
-                
-                // Générer le HTML avec les données
-                string htmlContent = _dataService.GenerateHtmlTable(collections);
+                // Générer le HTML complet avec les trois tables
+                string htmlContent = await _dataService.GenerateCompleteHtmlTableAsync();
                 
                 // Charger le HTML directement dans le WebView
                 webView.Source = new HtmlWebViewSource 
@@ -51,8 +49,10 @@ namespace CarspotLourd
                 Console.WriteLine($"Erreur lors du chargement des données: {ex.Message}");
                 
                 // En cas d'erreur, utiliser des données factices
-                var dummyData = _dataService.GetDummyDataPublic();
-                string htmlContent = _dataService.GenerateHtmlTable(dummyData);
+                var dummyCollections = _dataService.GetDummyDataPublic();
+                var dummyModels = new List<Model>();
+                var dummyBrands = new List<Brand>();
+                string htmlContent = _dataService.GenerateHtmlTablesWithAllData(dummyCollections, dummyModels, dummyBrands);
                 
                 webView.Source = new HtmlWebViewSource 
                 { 

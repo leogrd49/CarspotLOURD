@@ -47,6 +47,7 @@ namespace CarspotLourd.Services
             }
         }
 
+        // Récupération des collections
         public async Task<List<UserCollection>> GetUserCollectionsAsync()
         {
             try
@@ -56,7 +57,7 @@ namespace CarspotLourd.Services
                     InitializeClient();
                     if (_supabaseClient == null)
                     {
-                        return GetDummyData(); // Retourner des données fictives si l'initialisation échoue
+                        return GetDummyCollections(); // Retourner des données fictives si l'initialisation échoue
                     }
                 }
 
@@ -75,11 +76,88 @@ namespace CarspotLourd.Services
                 {
                     Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
-                return GetDummyData(); // Retourner des données fictives en cas d'erreur
+                return GetDummyCollections(); // Retourner des données fictives en cas d'erreur
+            }
+        }
+        
+        // Récupération des modèles
+        public async Task<List<Model>> GetModelsAsync()
+        {
+            try
+            {
+                if (_supabaseClient == null)
+                {
+                    InitializeClient();
+                    if (_supabaseClient == null)
+                    {
+                        return GetDummyModels(); // Retourner des données fictives si l'initialisation échoue
+                    }
+                }
+
+                var response = await _supabaseClient
+                    .From<Model>()
+                    .Select("*")
+                    .Get();
+
+                Console.WriteLine($"Récupération réussie! {response.Models.Count} modèles trouvés.");
+                return response.Models;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération des modèles: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                return GetDummyModels(); // Retourner des données fictives en cas d'erreur
             }
         }
 
-        public string GenerateHtmlTable(List<UserCollection> collections)
+        // Récupération des marques
+        public async Task<List<Brand>> GetBrandsAsync()
+        {
+            try
+            {
+                if (_supabaseClient == null)
+                {
+                    InitializeClient();
+                    if (_supabaseClient == null)
+                    {
+                        return GetDummyBrands(); // Retourner des données fictives si l'initialisation échoue
+                    }
+                }
+
+                var response = await _supabaseClient
+                    .From<Brand>()
+                    .Select("*")
+                    .Get();
+
+                Console.WriteLine($"Récupération réussie! {response.Models.Count} marques trouvées.");
+                return response.Models;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération des marques: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                return GetDummyBrands(); // Retourner des données fictives en cas d'erreur
+            }
+        }
+
+        public async Task<string> GenerateCompleteHtmlTableAsync()
+        {
+            // Récupérer les données nécessaires
+            var collections = await GetUserCollectionsAsync();
+            var models = await GetModelsAsync();
+            var brands = await GetBrandsAsync();
+            
+            // Générer le HTML
+            return GenerateHtmlTablesWithAllData(collections, models, brands);
+        }
+
+        public string GenerateHtmlTablesWithAllData(List<UserCollection> collections, List<Model> models, List<Brand> brands)
         {
             StringBuilder htmlBuilder = new StringBuilder();
             htmlBuilder.AppendLine("<!DOCTYPE html>");
@@ -101,6 +179,7 @@ namespace CarspotLourd.Services
             htmlBuilder.AppendLine("            border-radius: 8px;");
             htmlBuilder.AppendLine("            padding: 20px;");
             htmlBuilder.AppendLine("            box-shadow: 0 0 10px rgba(0,0,0,0.1);");
+            htmlBuilder.AppendLine("            margin-bottom: 30px;");
             htmlBuilder.AppendLine("        }");
             htmlBuilder.AppendLine("        ");
             htmlBuilder.AppendLine("        h3 {");
@@ -122,6 +201,8 @@ namespace CarspotLourd.Services
             htmlBuilder.AppendLine("    </style>");
             htmlBuilder.AppendLine("</head>");
             htmlBuilder.AppendLine("<body>");
+
+            // Table des collections d'utilisateurs
             htmlBuilder.AppendLine("    <div class=\"container\">");
             htmlBuilder.AppendLine("        <h3>Collections d'utilisateurs</h3>");
             htmlBuilder.AppendLine("        ");
@@ -130,12 +211,13 @@ namespace CarspotLourd.Services
             htmlBuilder.AppendLine("                <thead>");
             htmlBuilder.AppendLine("                    <tr>");
             htmlBuilder.AppendLine("                        <th>ID</th>");
-            htmlBuilder.AppendLine("                        <th>User ID</th>");
-            htmlBuilder.AppendLine("                        <th>Model ID</th>");
-            htmlBuilder.AppendLine("                        <th>Spotted</th>");
-            htmlBuilder.AppendLine("                        <th>Created At</th>");
-            htmlBuilder.AppendLine("                        <th>Location</th>");
-            htmlBuilder.AppendLine("                        <th>Is Public</th>");
+            htmlBuilder.AppendLine("                        <th>Modèle</th>");
+            htmlBuilder.AppendLine("                        <th>Marque</th>");
+            htmlBuilder.AppendLine("                        <th>Rareté</th>");
+            htmlBuilder.AppendLine("                        <th>Repéré</th>");
+            htmlBuilder.AppendLine("                        <th>Date de création</th>");
+            htmlBuilder.AppendLine("                        <th>Localisation</th>");
+            htmlBuilder.AppendLine("                        <th>Public</th>");
             htmlBuilder.AppendLine("                        <th>Superspot</th>");
             htmlBuilder.AppendLine("                    </tr>");
             htmlBuilder.AppendLine("                </thead>");
@@ -145,15 +227,76 @@ namespace CarspotLourd.Services
             {
                 foreach (var item in collections)
                 {
+                    // Trouver le modèle correspondant
+                    var model = models?.FirstOrDefault(m => m.Id == item.ModelId);
+                    // Trouver la marque correspondante
+                    var brand = model != null && model.BrandId.HasValue 
+                        ? brands?.FirstOrDefault(b => b.Id == model.BrandId.Value)
+                        : null;
+
                     htmlBuilder.AppendLine("                    <tr>");
                     htmlBuilder.AppendLine($"                        <td>{item.Id}</td>");
-                    htmlBuilder.AppendLine($"                        <td>{item.UserId}</td>");
-                    htmlBuilder.AppendLine($"                        <td>{item.ModelId}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{(model?.Name ?? $"Modèle {item.ModelId}")}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{(brand?.Name ?? "Inconnue")}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{(model?.Rarity ?? "Inconnue")}</td>");
                     htmlBuilder.AppendLine($"                        <td>{(item.Spotted ? "Oui" : "Non")}</td>");
                     htmlBuilder.AppendLine($"                        <td>{item.CreatedAt.ToString("yyyy-MM-dd")}</td>");
                     htmlBuilder.AppendLine($"                        <td>{item.Location}</td>");
                     htmlBuilder.AppendLine($"                        <td>{(item.IsPublic ? "Oui" : "Non")}</td>");
                     htmlBuilder.AppendLine($"                        <td>{(item.Superspot ? "Oui" : "Non")}</td>");
+                    htmlBuilder.AppendLine("                    </tr>");
+                }
+            }
+            else
+            {
+                htmlBuilder.AppendLine("                    <tr>");
+                htmlBuilder.AppendLine("                        <td colspan=\"9\" class=\"text-center\">Aucune donnée disponible</td>");
+                htmlBuilder.AppendLine("                    </tr>");
+            }
+
+            htmlBuilder.AppendLine("                </tbody>");
+            htmlBuilder.AppendLine("            </table>");
+            htmlBuilder.AppendLine("        </div>");
+            htmlBuilder.AppendLine("    </div>");
+
+            // Table des modèles
+            htmlBuilder.AppendLine("    <div class=\"container\">");
+            htmlBuilder.AppendLine("        <h3>Modèles</h3>");
+            htmlBuilder.AppendLine("        ");
+            htmlBuilder.AppendLine("        <div class=\"table-responsive\">");
+            htmlBuilder.AppendLine("            <table class=\"table table-striped\">");
+            htmlBuilder.AppendLine("                <thead>");
+            htmlBuilder.AppendLine("                    <tr>");
+            htmlBuilder.AppendLine("                        <th>ID</th>");
+            htmlBuilder.AppendLine("                        <th>Marque</th>");
+            htmlBuilder.AppendLine("                        <th>Nom</th>");
+            htmlBuilder.AppendLine("                        <th>Série</th>");
+            htmlBuilder.AppendLine("                        <th>Génération</th>");
+            htmlBuilder.AppendLine("                        <th>Moteur</th>");
+            htmlBuilder.AppendLine("                        <th>Puissance</th>");
+            htmlBuilder.AppendLine("                        <th>Rareté</th>");
+            htmlBuilder.AppendLine("                    </tr>");
+            htmlBuilder.AppendLine("                </thead>");
+            htmlBuilder.AppendLine("                <tbody>");
+
+            if (models != null && models.Count > 0)
+            {
+                foreach (var model in models)
+                {
+                    // Trouver la marque correspondante
+                    var brand = model.BrandId.HasValue 
+                        ? brands?.FirstOrDefault(b => b.Id == model.BrandId.Value)
+                        : null;
+
+                    htmlBuilder.AppendLine("                    <tr>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Id}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{(brand?.Name ?? "Inconnue")}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Name}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Series}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.GenerationName}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Engine}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Horsepower}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{model.Rarity}</td>");
                     htmlBuilder.AppendLine("                    </tr>");
                 }
             }
@@ -168,31 +311,79 @@ namespace CarspotLourd.Services
             htmlBuilder.AppendLine("            </table>");
             htmlBuilder.AppendLine("        </div>");
             htmlBuilder.AppendLine("    </div>");
+
+            // Table des marques
+            htmlBuilder.AppendLine("    <div class=\"container\">");
+            htmlBuilder.AppendLine("        <h3>Marques</h3>");
+            htmlBuilder.AppendLine("        ");
+            htmlBuilder.AppendLine("        <div class=\"table-responsive\">");
+            htmlBuilder.AppendLine("            <table class=\"table table-striped\">");
+            htmlBuilder.AppendLine("                <thead>");
+            htmlBuilder.AppendLine("                    <tr>");
+            htmlBuilder.AppendLine("                        <th>ID</th>");
+            htmlBuilder.AppendLine("                        <th>Nom</th>");
+            htmlBuilder.AppendLine("                        <th>Pays</th>");
+            htmlBuilder.AppendLine("                        <th>Date de création</th>");
+            htmlBuilder.AppendLine("                    </tr>");
+            htmlBuilder.AppendLine("                </thead>");
+            htmlBuilder.AppendLine("                <tbody>");
+
+            if (brands != null && brands.Count > 0)
+            {
+                foreach (var brand in brands)
+                {
+                    htmlBuilder.AppendLine("                    <tr>");
+                    htmlBuilder.AppendLine($"                        <td>{brand.Id}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{brand.Name}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{brand.Country}</td>");
+                    htmlBuilder.AppendLine($"                        <td>{brand.CreatedAt.ToString("yyyy-MM-dd")}</td>");
+                    htmlBuilder.AppendLine("                    </tr>");
+                }
+            }
+            else
+            {
+                htmlBuilder.AppendLine("                    <tr>");
+                htmlBuilder.AppendLine("                        <td colspan=\"4\" class=\"text-center\">Aucune donnée disponible</td>");
+                htmlBuilder.AppendLine("                    </tr>");
+            }
+
+            htmlBuilder.AppendLine("                </tbody>");
+            htmlBuilder.AppendLine("            </table>");
+            htmlBuilder.AppendLine("        </div>");
+            htmlBuilder.AppendLine("    </div>");
+
             htmlBuilder.AppendLine("</body>");
             htmlBuilder.AppendLine("</html>");
 
             return htmlBuilder.ToString();
         }
 
+        // Pour la rétrocompatibilité avec l'ancienne méthode
+        public string GenerateHtmlTable(List<UserCollection> collections)
+        {
+            // Utiliser des données dummy pour les modèles et marques dans ce cas
+            return GenerateHtmlTablesWithAllData(collections, GetDummyModels(), GetDummyBrands());
+        }
+
         // Méthode publique pour accéder aux données factices depuis l'extérieur
         public List<UserCollection> GetDummyDataPublic()
         {
-            return GetDummyData();
+            return GetDummyCollections();
         }
 
-        private List<UserCollection> GetDummyData()
+        // Données fictives pour les collections
+        private List<UserCollection> GetDummyCollections()
         {
-            // Données fictives pour test ou secours
             return new List<UserCollection>
             {
                 new UserCollection
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
                     UserId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
-                    ModelId = 1,
+                    ModelId = 1,     // 911 Carrera (Porsche)
                     Spotted = true,
                     CreatedAt = DateTime.Now.AddDays(-5),
-                    Location = "Paris",
+                    Location = "Paris, France",
                     IsPublic = true,
                     Superspot = false
                 },
@@ -200,10 +391,10 @@ namespace CarspotLourd.Services
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
                     UserId = Guid.Parse("10000000-0000-0000-0000-000000000002"),
-                    ModelId = 2,
+                    ModelId = 2,     // M3 Competition (BMW)
                     Spotted = false,
                     CreatedAt = DateTime.Now.AddDays(-2),
-                    Location = "Lyon",
+                    Location = "Monaco",
                     IsPublic = true,
                     Superspot = true
                 },
@@ -211,12 +402,85 @@ namespace CarspotLourd.Services
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
                     UserId = Guid.Parse("10000000-0000-0000-0000-000000000003"),
-                    ModelId = 3,
+                    ModelId = 3,     // Huracán Evo (Lamborghini)
                     Spotted = true,
                     CreatedAt = DateTime.Now.AddDays(-1),
-                    Location = "Marseille",
+                    Location = "Milan, Italie",
                     IsPublic = false,
                     Superspot = false
+                }
+            };
+        }
+
+        // Données fictives pour les modèles
+        private List<Model> GetDummyModels()
+        {
+            return new List<Model>
+            {
+                new Model
+                {
+                    Id = 1,
+                    BrandId = 1,
+                    Name = "911 Carrera",
+                    Series = "911",
+                    GenerationName = "992",
+                    Engine = "3.0L Flat-6",
+                    Horsepower = 385,
+                    Rarity = "Common",
+                    CreatedAt = DateTime.Now.AddDays(-120)
+                },
+                new Model
+                {
+                    Id = 2,
+                    BrandId = 2,
+                    Name = "M3 Competition",
+                    Series = "M3",
+                    GenerationName = "G80",
+                    Engine = "3.0L Twin-Turbo",
+                    Horsepower = 503,
+                    Rarity = "Uncommon",
+                    CreatedAt = DateTime.Now.AddDays(-90)
+                },
+                new Model
+                {
+                    Id = 3,
+                    BrandId = 3,
+                    Name = "Huracán Evo",
+                    Series = "Huracán",
+                    GenerationName = "Evo",
+                    Engine = "5.2L V10",
+                    Horsepower = 640,
+                    Rarity = "Rare",
+                    CreatedAt = DateTime.Now.AddDays(-60)
+                }
+            };
+        }
+
+        // Données fictives pour les marques
+        private List<Brand> GetDummyBrands()
+        {
+            return new List<Brand>
+            {
+                new Brand
+                {
+                    Id = 1,
+                    Name = "Porsche",
+                    Country = "Allemagne",
+                    CreatedAt = DateTime.Now.AddDays(-200)
+                },
+                new Brand
+                {
+                    Id = 2,
+                    Name = "BMW",
+                    Country = "Allemagne",
+                    CreatedAt = DateTime.Now.AddDays(-190)
+                },
+                new Brand
+                {
+                    Id = 3,
+                    Name = "Lamborghini",
+                    Country = "Italie",
+                    CreatedAt = DateTime.Now.AddDays(-180)
                 }
             };
         }

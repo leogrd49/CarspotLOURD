@@ -5,72 +5,216 @@
 @using System.Text.Json
 @inject SupabaseService SupabaseService
 
-<h2 class="mb-4">User Collections</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Collections d'utilisateurs</h2>
+            
+            <!-- Vue d'ensemble rapide -->
+            <div class="mb-3">
+                @if (!isLoadingCollections && collections != null)
+                {
+                    <p>Nombre total de collections: <strong>@collections.Count</strong></p>
+                }
+            </div>
 
-<!-- Vue d'ensemble rapide -->
-<div class="mb-3">
-    @if (!isLoading && collections != null)
-    {
-        <p>Nombre total de collections: <strong>@collections.Count</strong></p>
-    }
-</div>
-
-@if (isLoading)
-{
-    <p><em>Chargement...</em></p>
-}
-else if (errorMessage != null)
-{
-    <div class="alert alert-danger">
-        <h4>Une erreur s'est produite :</h4>
-        <p>@errorMessage</p>
-    </div>
-}
-else if (collections == null || collections.Count == 0)
-{
-    <p>Aucune donnée trouvée.</p>
-}
-else
-{
-    <div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User ID</th>
-                <th>Model ID</th>
-                <th>Spotted</th>
-                <th>Created At</th>
-                <th>Location</th>
-                <th>Is Public</th>
-                <th>Superspot</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var collection in collections)
+            @if (isLoadingCollections)
             {
-                <tr>
-                    <td>@collection.Id</td>
-                    <td>@collection.UserId</td>
-                    <td>@collection.ModelId</td>
-                    <td>@collection.Spotted</td>
-                    <td>@(collection.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"))</td>
-                    <td>@collection.Location</td>
-                    <td>@collection.IsPublic</td>
-                    <td>@collection.Superspot</td>
-                </tr>
+                <p><em>Chargement des collections...</em></p>
             }
-        </tbody>
-    </table>
+            else if (errorMessageCollections != null)
+            {
+                <div class="alert alert-danger">
+                    <h4>Une erreur s'est produite :</h4>
+                    <p>@errorMessageCollections</p>
+                </div>
+            }
+            else if (collections == null || collections.Count == 0)
+            {
+                <p>Aucune donnée de collection trouvée.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Modèle</th>
+                                <th>Marque</th>
+                                <th>Rareté</th>
+                                <th>Repéré</th>
+                                <th>Date de création</th>
+                                <th>Localisation</th>
+                                <th>Public</th>
+                                <th>Superspot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var collection in collections)
+                            {
+                                var model = models?.FirstOrDefault(m => m.Id == collection.ModelId);
+                                var brand = model != null && model.BrandId.HasValue 
+                                    ? brands?.FirstOrDefault(b => b.Id == model.BrandId.Value)
+                                    : null;
+                                
+                                <tr>
+                                    <td>@collection.Id</td>
+                                    <td>@(model?.Name ?? $"Model {collection.ModelId}")</td>
+                                    <td>@(brand?.Name ?? "Unknown")</td>
+                                    <td>@(model?.Rarity ?? "Unknown")</td>
+                                    <td>@collection.Spotted</td>
+                                    <td>@(collection.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                                    <td>@collection.Location</td>
+                                    <td>@collection.IsPublic</td>
+                                    <td>@collection.Superspot</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">Modèles</h2>
+            
+            <!-- Vue d'ensemble rapide -->
+            <div class="mb-3">
+                @if (!isLoadingModels && models != null)
+                {
+                    <p>Nombre total de modèles: <strong>@models.Count</strong></p>
+                }
+            </div>
+
+            @if (isLoadingModels)
+            {
+                <p><em>Chargement des modèles...</em></p>
+            }
+            else if (errorMessageModels != null)
+            {
+                <div class="alert alert-danger">
+                    <h4>Une erreur s'est produite :</h4>
+                    <p>@errorMessageModels</p>
+                </div>
+            }
+            else if (models == null || models.Count == 0)
+            {
+                <p>Aucun modèle trouvé.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Marque</th>
+                                <th>Nom</th>
+                                <th>Série</th>
+                                <th>Génération</th>
+                                <th>Moteur</th>
+                                <th>Puissance</th>
+                                <th>Rareté</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var model in models)
+                            {
+                                <tr>
+                                    <td>@model.Id</td>
+                                    <td>@(brands?.FirstOrDefault(b => b.Id == model.BrandId)?.Name ?? "Unknown")</td>
+                                    <td>@model.Name</td>
+                                    <td>@model.Series</td>
+                                    <td>@model.GenerationName</td>
+                                    <td>@model.Engine</td>
+                                    <td>@model.Horsepower</td>
+                                    <td>@model.Rarity</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">Marques</h2>
+            
+            <!-- Vue d'ensemble rapide -->
+            <div class="mb-3">
+                @if (!isLoadingBrands && brands != null)
+                {
+                    <p>Nombre total de marques: <strong>@brands.Count</strong></p>
+                }
+            </div>
+
+            @if (isLoadingBrands)
+            {
+                <p><em>Chargement des marques...</em></p>
+            }
+            else if (errorMessageBrands != null)
+            {
+                <div class="alert alert-danger">
+                    <h4>Une erreur s'est produite :</h4>
+                    <p>@errorMessageBrands</p>
+                </div>
+            }
+            else if (brands == null || brands.Count == 0)
+            {
+                <p>Aucune marque trouvée.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Pays</th>
+                                <th>Date de création</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var brand in brands)
+                            {
+                                <tr>
+                                    <td>@brand.Id</td>
+                                    <td>@brand.Name</td>
+                                    <td>@brand.Country</td>
+                                    <td>@(brand.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
 </div>
-}
 
 @code {
+    // Collections
     private List<UserCollection> collections;
-    private bool isLoading = true;
-    private string errorMessage = null;
+    private bool isLoadingCollections = true;
+    private string errorMessageCollections = null;
+    
+    // Models
+    private List<Model> models;
+    private bool isLoadingModels = true;
+    private string errorMessageModels = null;
+    
+    // Brands
+    private List<Brand> brands;
+    private bool isLoadingBrands = true;
+    private string errorMessageBrands = null;
 
-    private List<UserCollection> GetDummyData()
+    private List<UserCollection> GetDummyCollections()
     {
         // Créer quelques données factices pour démontrer l'interface
         return new List<UserCollection>
@@ -79,10 +223,10 @@ else
             {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
-                ModelId = 1,
+                ModelId = 1,     // 911 Carrera (Porsche)
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-5),
-                Location = "Paris",
+                Location = "Paris, France",
                 IsPublic = true,
                 Superspot = false
             },
@@ -90,10 +234,10 @@ else
             {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
-                ModelId = 2,
+                ModelId = 2,     // M3 Competition (BMW)
                 Spotted = false,
                 CreatedAt = DateTime.Now.AddDays(-2),
-                Location = "Lyon",
+                Location = "Monaco",
                 IsPublic = true,
                 Superspot = true
             },
@@ -101,22 +245,103 @@ else
             {
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
-                ModelId = 3,
+                ModelId = 3,     // Huracán Evo (Lamborghini)
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-1),
-                Location = "Marseille",
+                Location = "Milan, Italie",
                 IsPublic = false,
                 Superspot = false
+            }
+        };
+    }
+    
+    private List<Model> GetDummyModels()
+    {
+        // Créer quelques données factices pour démontrer l'interface
+        return new List<Model>
+        {
+            new Model
+            {
+                Id = 1,
+                BrandId = 1,
+                Name = "911 Carrera",
+                Series = "911",
+                GenerationName = "992",
+                Engine = "3.0L Flat-6",
+                Horsepower = 385,
+                Rarity = "Common",
+                CreatedAt = DateTime.Now.AddDays(-120)
+            },
+            new Model
+            {
+                Id = 2,
+                BrandId = 2,
+                Name = "M3 Competition",
+                Series = "M3",
+                GenerationName = "G80",
+                Engine = "3.0L Twin-Turbo",
+                Horsepower = 503,
+                Rarity = "Uncommon",
+                CreatedAt = DateTime.Now.AddDays(-90)
+            },
+            new Model
+            {
+                Id = 3,
+                BrandId = 3,
+                Name = "Huracán Evo",
+                Series = "Huracán",
+                GenerationName = "Evo",
+                Engine = "5.2L V10",
+                Horsepower = 640,
+                Rarity = "Rare",
+                CreatedAt = DateTime.Now.AddDays(-60)
+            }
+        };
+    }
+    
+    private List<Brand> GetDummyBrands()
+    {
+        // Créer quelques données factices pour démontrer l'interface
+        return new List<Brand>
+        {
+            new Brand
+            {
+                Id = 1,
+                Name = "Porsche",
+                Country = "Allemagne",
+                CreatedAt = DateTime.Now.AddDays(-200)
+            },
+            new Brand
+            {
+                Id = 2,
+                Name = "BMW",
+                Country = "Allemagne",
+                CreatedAt = DateTime.Now.AddDays(-190)
+            },
+            new Brand
+            {
+                Id = 3,
+                Name = "Lamborghini",
+                Country = "Italie",
+                CreatedAt = DateTime.Now.AddDays(-180)
             }
         };
     }
 
     protected override async Task OnInitializedAsync()
     {
+        // Chargement des modèles et marques d'abord pour les références
+        await LoadModels();
+        await LoadBrands();
+        await LoadUserCollections();
+    }
+    
+    private async Task LoadUserCollections()
+    {
         try
         {
             Console.WriteLine("UserCollections: Initialisation du composant...");
-            isLoading = true;
+            isLoadingCollections = true;
             
             Console.WriteLine("UserCollections: Tentative de récupération des données...");
             collections = await SupabaseService.GetUserCollectionsAsync();
@@ -127,24 +352,96 @@ else
             if (collections == null || collections.Count == 0)
             {
                 // Utiliser des données factices si aucune donnée n'est disponible
-                collections = GetDummyData();
-                Console.WriteLine("Utilisation de données factices pour l'affichage");
+                collections = GetDummyCollections();
+                Console.WriteLine("Utilisation de données factices pour l'affichage des collections");
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Erreur: {ex.Message}";
-            Console.WriteLine($"UserCollections: Erreur lors de la récupération des données: {ex.Message}");
+            errorMessageCollections = $"Erreur: {ex.Message}";
+            Console.WriteLine($"UserCollections: Erreur lors de la récupération des collections: {ex.Message}");
             Console.WriteLine($"UserCollections: Erreur détaillée: {ex}");
             
             // Utiliser des données factices en cas d'erreur
-            collections = GetDummyData();
-            Console.WriteLine("Utilisation de données factices après erreur");
+            collections = GetDummyCollections();
+            Console.WriteLine("Utilisation de données factices après erreur pour les collections");
         }
         finally
         {
             // Toujours mettre fin au chargement
-            isLoading = false;
+            isLoadingCollections = false;
+        }
+    }
+    
+    private async Task LoadModels()
+    {
+        try
+        {
+            Console.WriteLine("Models: Tentative de récupération des modèles...");
+            isLoadingModels = true;
+            
+            models = await SupabaseService.GetModelsAsync();
+            
+            Console.WriteLine($"Models: Données récupérées avec succès! {models?.Count ?? 0} modèles");
+            
+            // S'assurer que models n'est jamais null
+            if (models == null || models.Count == 0)
+            {
+                // Utiliser des données factices si aucune donnée n'est disponible
+                models = GetDummyModels();
+                Console.WriteLine("Utilisation de données factices pour l'affichage des modèles");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessageModels = $"Erreur: {ex.Message}";
+            Console.WriteLine($"Models: Erreur lors de la récupération des modèles: {ex.Message}");
+            Console.WriteLine($"Models: Erreur détaillée: {ex}");
+            
+            // Utiliser des données factices en cas d'erreur
+            models = GetDummyModels();
+            Console.WriteLine("Utilisation de données factices après erreur pour les modèles");
+        }
+        finally
+        {
+            // Toujours mettre fin au chargement
+            isLoadingModels = false;
+        }
+    }
+    
+    private async Task LoadBrands()
+    {
+        try
+        {
+            Console.WriteLine("Brands: Tentative de récupération des marques...");
+            isLoadingBrands = true;
+            
+            brands = await SupabaseService.GetBrandsAsync();
+            
+            Console.WriteLine($"Brands: Données récupérées avec succès! {brands?.Count ?? 0} marques");
+            
+            // S'assurer que brands n'est jamais null
+            if (brands == null || brands.Count == 0)
+            {
+                // Utiliser des données factices si aucune donnée n'est disponible
+                brands = GetDummyBrands();
+                Console.WriteLine("Utilisation de données factices pour l'affichage des marques");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessageBrands = $"Erreur: {ex.Message}";
+            Console.WriteLine($"Brands: Erreur lors de la récupération des marques: {ex.Message}");
+            Console.WriteLine($"Brands: Erreur détaillée: {ex}");
+            
+            // Utiliser des données factices en cas d'erreur
+            brands = GetDummyBrands();
+            Console.WriteLine("Utilisation de données factices après erreur pour les marques");
+        }
+        finally
+        {
+            // Toujours mettre fin au chargement
+            isLoadingBrands = false;
         }
     }
 }

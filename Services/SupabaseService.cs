@@ -53,31 +53,89 @@ namespace CarspotLourd.Services
 
         public async Task<List<UserCollection>> GetUserCollectionsAsync()
         {
-            try
-            {
-                Console.WriteLine("Tentative de récupération des collections utilisateur...");
+        try
+        {
+        Console.WriteLine("Tentative de récupération des collections utilisateur...");
 
-                var response = await _supabaseClient
-                    .From<UserCollection>()
-                    .Select("*")
-                    .Get();
+        var response = await _supabaseClient
+        .From<UserCollection>()
+        .Select("*")
+        .Get();
 
-                Console.WriteLine($"Succès! {response.Models.Count} collections récupérées.");
-                return response.Models;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors de la récupération des collections: {ex.Message}");
-
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                    Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
-                }
-
-                // Retourner une liste vide au lieu de planter
-                return new List<UserCollection>();
-            }
+        Console.WriteLine($"Succès! {response.Models.Count} collections récupérées.");
+        return response.Models;
         }
+        catch (Exception ex)
+        {
+        Console.WriteLine($"Erreur lors de la récupération des collections: {ex.Message}");
+
+        if (ex.InnerException != null)
+        {
+        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+        Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+        }
+
+        // Retourner une liste vide au lieu de planter
+        return new List<UserCollection>();
+        }
+        }
+
+    public async Task<List<Model>> GetModelsAsync()
+    {
+        try
+        {
+            Console.WriteLine("Tentative de récupération des modèles...");
+
+            var response = await _supabaseClient
+                .From<Model>()
+                .Select("*")
+                .Get();
+
+            Console.WriteLine($"Succès! {response.Models.Count} modèles récupérés.");
+            return response.Models;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la récupération des modèles: {ex.Message}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+            }
+
+            // Retourner une liste vide au lieu de planter
+            return new List<Model>();
+        }
+    }
+
+    public async Task<List<Brand>> GetBrandsAsync()
+    {
+        try
+        {
+            Console.WriteLine("Tentative de récupération des marques...");
+
+            var response = await _supabaseClient
+                .From<Brand>()
+                .Select("*")
+                .Get();
+
+            Console.WriteLine($"Succès! {response.Models.Count} marques récupérées.");
+            return response.Models;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la récupération des marques: {ex.Message}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+            }
+
+            // Retourner une liste vide au lieu de planter
+            return new List<Brand>();
+        }
+    }
     }
 }
