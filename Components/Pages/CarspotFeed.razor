@@ -1,0 +1,404 @@
+@page "/carspot-feed"
+@using CarspotLourd.Models
+@using CarspotLourd.Services
+@using System.Collections.Generic
+@using System.Threading.Tasks
+@inject SpotService SpotService
+@inject NavigationManager Navigation
+@inject Supabase.Client SupabaseClient
+
+<div class="page-container">
+    <!-- Header -->
+    <div class="feed-header d-flex justify-content-between align-items-center mb-3">
+        <h3>Carspot</h3>
+        <button class="btn btn-outline-primary rounded-circle">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+
+    <!-- Main Feed -->
+    <div class="feed-container">
+        @if (isLoading)
+        {
+            <div class="text-center p-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (spotViewModels.Count == 0)
+        {
+            <div class="alert alert-info">
+                No spots available. Start spotting some cars!
+            </div>
+        }
+        else
+        {
+            @foreach (var spot in spotViewModels)
+            {
+                <div class="spot-card mb-4 bg-white rounded-3 shadow-sm">
+                    <!-- Post Header -->
+                    <div class="spot-header d-flex align-items-center p-3">
+                        <div class="me-2">
+                            <img src="@spot.UserProfilePic" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                        </div>
+                        <div class="username fw-bold">@spot.Username</div>
+                        <div class="ms-auto">
+                            <i class="bi bi-three-dots"></i>
+                        </div>
+                    </div>
+
+                    <!-- Post Image -->
+                    <div class="spot-image position-relative">
+                        <img src="@spot.ImageUrl" alt="@spot.CarModel" class="img-fluid w-100" style="max-height: 70vh; object-fit: cover;" />
+                        <div class="spot-location position-absolute bottom-0 start-0 m-2">
+                            @if (!string.IsNullOrEmpty(spot.Location))
+                            {
+                                <span class="badge bg-dark bg-opacity-75 p-2">
+                                    <i class="bi bi-geo-alt me-1"></i>@spot.Location
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Car Info and Rarity -->
+                    <div class="spot-title d-flex align-items-center p-3">
+                        <div>
+                            <div class="car-model fs-4 fw-bold">@spot.CarModel</div>
+                            @if (!string.IsNullOrEmpty(spot.Trim))
+                            {
+                                <div class="car-trim text-muted">@spot.Trim</div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(spot.Rarity))
+                        {
+                            <div class="ms-auto">
+                                <span class="badge bg-primary rounded-pill px-3 py-2">@spot.Rarity</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Description -->
+                    @if (!string.IsNullOrEmpty(spot.Description))
+                    {
+                        <div class="spot-description px-3 pb-2">
+                            <p class="mb-1">@spot.Description</p>
+                        </div>
+                    }
+
+                    <!-- Post Date -->
+                    <div class="spot-date p-3 text-muted">
+                        @spot.PostDate.ToString("dd/MM/yyyy")
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="spot-actions d-flex justify-content-around p-3 border-top">
+                        <div class="action-item d-flex align-items-center">
+                            <button class="btn btn-link text-dark p-0" @onclick="() => LikeSpot(spot.Id)">
+                                <i class="bi @(spot.IsLiked ? "bi-heart-fill text-danger" : "bi-heart") me-2"></i>
+                            </button>
+                            <span>@spot.LikesCount</span>
+                        </div>
+                        <div class="action-item d-flex align-items-center">
+                            <button class="btn btn-link text-dark p-0">
+                                <i class="bi bi-chat me-2"></i>
+                            </button>
+                            <span>@spot.CommentsCount</span>
+                        </div>
+                        <div class="action-item d-flex align-items-center">
+                            <button class="btn btn-link text-dark p-0">
+                                <i class="bi bi-share me-2"></i>
+                            </button>
+                            <span>@spot.SharesCount</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .page-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 15px;
+    }
+
+    .spot-card {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .feed-header {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 100;
+        padding: 10px 0;
+    }
+</style>
+
+@code {
+    private List<SpotViewModel> spotViewModels = new List<SpotViewModel>();
+    private bool isLoading = true;
+    private Guid? currentUserId = Guid.Parse("11111111-1111-1111-1111-111111111111"); // Utiliser l'ID utilisateur réel
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSpots();
+    }
+
+    private async Task LoadSpots()
+    {
+        isLoading = true;
+        spotViewModels.Clear();
+
+        try
+        {
+            // Dans un vrai scénario, vous récupéreriez ces données de votre base de données
+            // Ici nous créons des données fictives pour la démonstration
+            var spots = await MockGetSpots();
+            
+            foreach (var spot in spots)
+            {
+                // Dans un cas réel, vous utiliseriez votre service pour obtenir ces informations
+                var user = await MockGetUser(spot.UserId);
+                var model = await MockGetModel(spot.ModelId);
+                var brand = await MockGetBrand(model.BrandId ?? 0);
+                
+                var likesCount = await MockGetLikesCount(spot.Id);
+                var commentsCount = await MockGetCommentsCount(spot.Id);
+                var sharesCount = await MockGetSharesCount(spot.Id);
+                var isLiked = await MockIsLikedByUser(spot.Id, currentUserId.Value);
+
+                spotViewModels.Add(new SpotViewModel
+                {
+                    Id = spot.Id,
+                    Username = user.Username,
+                    UserProfilePic = user.ProfilePicUrl,
+                    ImageUrl = spot.ImageUrl,
+                    CarModel = $"{brand.Name} {model.Name}",
+                    Trim = model.Trim,
+                    Rarity = model.Rarity,
+                    Description = spot.Description,
+                    Location = spot.Location,
+                    PostDate = spot.CreatedAt,
+                    LikesCount = likesCount,
+                    CommentsCount = commentsCount,
+                    SharesCount = sharesCount,
+                    IsLiked = isLiked
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading spots: {ex.Message}");
+            // Gérer l'erreur - afficher un message à l'utilisateur
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LikeSpot(Guid spotId)
+    {
+        var spotViewModel = spotViewModels.FirstOrDefault(s => s.Id == spotId);
+        if (spotViewModel == null) return;
+
+        if (spotViewModel.IsLiked)
+        {
+            // Supprimer le like
+            await MockUnlikeSpot(spotId, currentUserId.Value);
+            spotViewModel.IsLiked = false;
+            spotViewModel.LikesCount--;
+        }
+        else
+        {
+            // Ajouter le like
+            await MockLikeSpot(spotId, currentUserId.Value);
+            spotViewModel.IsLiked = true;
+            spotViewModel.LikesCount++;
+        }
+
+        StateHasChanged();
+    }
+
+    // Méthodes de mock pour simuler l'accès aux données - en production, vous utiliseriez vos services réels
+
+    private async Task<List<Spot>> MockGetSpots()
+    {
+        // Simulation d'un délai réseau
+        await Task.Delay(500);
+        
+        return new List<Spot>
+        {
+            new Spot
+            {
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                ModelId = 1,
+                ImageUrl = "https://www.topgear.com/sites/default/files/2022/08/TopGear%20-%20Bentley%20Continental%20GT%20-%20001.jpg",
+                Location = "Paris, France",
+                Description = "Just spotted this beauty in downtown Paris!",
+                CreatedAt = new DateTime(2025, 3, 23),
+                Latitude = 48.856614,
+                Longitude = 2.3522219
+            },
+            new Spot
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                UserId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                ModelId = 2,
+                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/2018_Lamborghini_Aventador_S_LP740-4_Roadster_6.5.jpg/1200px-2018_Lamborghini_Aventador_S_LP740-4_Roadster_6.5.jpg",
+                Location = "Monaco",
+                Description = "Aventador in Monaco - perfect combo!",
+                CreatedAt = new DateTime(2025, 4, 5),
+                Latitude = 43.7384,
+                Longitude = 7.4246
+            }
+        };
+    }
+
+    private async Task<User> MockGetUser(Guid userId)
+    {
+        await Task.Delay(10);
+        
+        if (userId == Guid.Parse("11111111-1111-1111-1111-111111111111"))
+        {
+            return new User
+            {
+                Id = userId,
+                Username = "Kingnathanael9",
+                Email = "king@example.com",
+                ProfilePicUrl = "https://via.placeholder.com/150",
+                CreatedAt = new DateTime(2023, 1, 1),
+                Bio = "Car spotter & enthusiast",
+                Location = "France"
+            };
+        }
+        
+        return new User
+        {
+            Id = userId,
+            Username = "CarEnthusiast",
+            Email = "carenthusiast@example.com",
+            ProfilePicUrl = "https://via.placeholder.com/150/0000FF/808080",
+            CreatedAt = new DateTime(2023, 6, 15),
+            Bio = "Supercar hunter",
+            Location = "Monaco"
+        };
+    }
+
+    private async Task<Model> MockGetModel(long modelId)
+    {
+        await Task.Delay(10);
+        
+        if (modelId == 1)
+        {
+            return new Model
+            {
+                Id = modelId,
+                BrandId = 1,
+                Name = "Continental GT",
+                Price = 220000M,
+                Engine = "W12",
+                Horsepower = 626,
+                Rarity = "Rare",
+                Trim = "Speed"
+            };
+        }
+        
+        return new Model
+        {
+            Id = modelId,
+            BrandId = 2,
+            Name = "Aventador",
+            Price = 500000M,
+            Engine = "V12",
+            Horsepower = 740,
+            Rarity = "Legendary",
+            Trim = "S"
+        };
+    }
+
+    private async Task<Brand> MockGetBrand(long brandId)
+    {
+        await Task.Delay(10);
+        
+        if (brandId == 1)
+        {
+            return new Brand
+            {
+                Id = brandId,
+                Name = "Bentley",
+                Country = "United Kingdom"
+            };
+        }
+        
+        return new Brand
+        {
+            Id = brandId,
+            Name = "Lamborghini",
+            Country = "Italy"
+        };
+    }
+
+    private async Task<int> MockGetLikesCount(Guid spotId)
+    {
+        await Task.Delay(10);
+        return spotId == Guid.Parse("22222222-2222-2222-2222-222222222222") ? 0 : 42;
+    }
+
+    private async Task<int> MockGetCommentsCount(Guid spotId)
+    {
+        await Task.Delay(10);
+        return spotId == Guid.Parse("22222222-2222-2222-2222-222222222222") ? 0 : 7;
+    }
+
+    private async Task<int> MockGetSharesCount(Guid spotId)
+    {
+        await Task.Delay(10);
+        return spotId == Guid.Parse("22222222-2222-2222-2222-222222222222") ? 0 : 3;
+    }
+
+    private async Task<bool> MockIsLikedByUser(Guid spotId, Guid userId)
+    {
+        await Task.Delay(10);
+        // Simule que l'utilisateur n'a pas encore liké le premier post mais a liké le second
+        return spotId == Guid.Parse("33333333-3333-3333-3333-333333333333");
+    }
+
+    private async Task MockLikeSpot(Guid spotId, Guid userId)
+    {
+        await Task.Delay(100);
+        // Dans une app réelle, vous appelleriez votre service pour ajouter un like
+    }
+
+    private async Task MockUnlikeSpot(Guid spotId, Guid userId)
+    {
+        await Task.Delay(100);
+        // Dans une app réelle, vous appelleriez votre service pour supprimer un like
+    }
+
+    // Classe ViewModel pour afficher les spots
+    public class SpotViewModel
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string UserProfilePic { get; set; }
+        public string ImageUrl { get; set; }
+        public string CarModel { get; set; }
+        public string Trim { get; set; }
+        public string Rarity { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+        public DateTime PostDate { get; set; }
+        public int LikesCount { get; set; }
+        public int CommentsCount { get; set; }
+        public int SharesCount { get; set; }
+        public bool IsLiked { get; set; }
+    }
+}

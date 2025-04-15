@@ -1,0 +1,43 @@
+// Données fictives pour les collections
+public List<UserCollection> GetDummyCollections()
+{
+    return new List<UserCollection>
+    {
+        new UserCollection
+        {
+            Id = Guid.Parse("590ed93e-f03a-4974-8f51-b6c350d58141"),
+            UserId = "10000000-0000-0000-0000-000000000001",
+            ModelId = "1",     // 911 Carrera (Porsche)
+            Spotted = true,
+            CreatedAt = DateTime.Now.AddDays(-5),
+            DateCreated = DateTime.Now.AddDays(-5),
+            Location = "Paris, France",
+            IsPublic = true,
+            Superspot = false
+        },
+        new UserCollection
+        {
+            Id = Guid.Parse("e7074003-e4c2-481c-a2f2-3ff2ce8b4738"),
+            UserId = "10000000-0000-0000-0000-000000000002",
+            ModelId = "2",     // M3 Competition (BMW)
+            Spotted = false,
+            CreatedAt = DateTime.Now.AddDays(-2),
+            DateCreated = DateTime.Now.AddDays(-2),
+            Location = "Monaco",
+            IsPublic = true,
+            Superspot = true
+        },
+        new UserCollection
+        {
+            Id = Guid.Parse("d4c9a006-80b8-46af-ab6c-53902b155b94"),
+            UserId = "10000000-0000-0000-0000-000000000003",
+            ModelId = "3",     // Huracán Evo (Lamborghini)
+            Spotted = true,
+            CreatedAt = DateTime.Now.AddDays(-1),
+            DateCreated = DateTime.Now.AddDays(-1),
+            Location = "Milan, Italie",
+            IsPublic = false,
+            Superspot = false
+        }
+    };
+}

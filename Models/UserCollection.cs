@@ -11,10 +11,10 @@ namespace CarspotLourd.Models
         public Guid Id { get; set; }
 
         [Column("user_id")]
-        public Guid? UserId { get; set; }
+        public string UserId { get; set; }
 
         [Column("model_id")]
-        public long? ModelId { get; set; }
+        public string ModelId { get; set; }
 
         [Column("spotted")]
         public bool Spotted { get; set; }
@@ -26,7 +26,7 @@ namespace CarspotLourd.Models
         public DateTime CreatedAt { get; set; }
 
         [Column("location")]
-        public string? Location { get; set; }
+        public string Location { get; set; }
 
         [Column("latitude")]
         public double? Latitude { get; set; }
@@ -35,21 +35,25 @@ namespace CarspotLourd.Models
         public double? Longitude { get; set; }
 
         [Column("image_url")]
-        public string? ImageUrl { get; set; }
+        public string ImageUrl { get; set; }
 
         [Column("is_public")]
         public bool IsPublic { get; set; }
 
         [Column("image2_url")]
-        public string? Image2Url { get; set; }
+        public string Image2Url { get; set; }
 
         [Column("image3_url")]
-        public string? Image3Url { get; set; }
+        public string Image3Url { get; set; }
 
         [Column("superspot")]
         public bool Superspot { get; set; }
 
         [Column("warn")]
         public int Warn { get; set; }
+        
+        // Propriété mappable pour la date de création
+        [Column("date_created")]
+        public DateTime? DateCreated { get; set; }
     }
 }

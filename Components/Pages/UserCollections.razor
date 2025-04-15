@@ -53,7 +53,7 @@
                         <tbody>
                             @foreach (var collection in collections)
                             {
-                                var model = models?.FirstOrDefault(m => m.Id == collection.ModelId);
+                                var model = models?.FirstOrDefault(m => m.Id.ToString() == collection.ModelId);
                                 var brand = model != null && model.BrandId.HasValue 
                                     ? brands?.FirstOrDefault(b => b.Id == model.BrandId.Value)
                                     : null;
@@ -222,8 +222,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 1,     // 911 Carrera (Porsche)
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "1",     // 911 Carrera (Porsche)
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-5),
                 Location = "Paris, France",
@@ -233,8 +233,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 2,     // M3 Competition (BMW)
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "2",     // M3 Competition (BMW)
                 Spotted = false,
                 CreatedAt = DateTime.Now.AddDays(-2),
                 Location = "Monaco",
@@ -244,8 +244,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 3,     // Huracán Evo (Lamborghini)
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "3",     // Huracán Evo (Lamborghini)
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-1),
                 Location = "Milan, Italie",

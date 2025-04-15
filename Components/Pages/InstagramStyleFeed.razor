@@ -1,0 +1,106 @@
+@page "/instagram-feed"
+@using CarspotLourd.Models
+@using System.Collections.Generic
+@inject NavigationManager Navigation
+
+<h3 class="mb-4">Carspot Feed</h3>
+
+<div class="container">
+    @foreach (var post in carPosts)
+    {
+        <div class="insta-post mb-5">
+            <!-- Header with username and profile pic -->
+            <div class="post-header d-flex align-items-center p-2">
+                <div class="profile-pic me-2">
+                    <img src="@post.UserProfilePic" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                </div>
+                <div class="username fw-bold">@post.Username</div>
+                <div class="ms-auto">
+                    <i class="bi bi-three-dots"></i>
+                </div>
+            </div>
+
+            <!-- Main image -->
+            <div class="post-image">
+                <img src="@post.ImageUrl" alt="@post.CarModel" class="img-fluid w-100" style="max-height: 500px; object-fit: cover;" />
+            </div>
+
+            <!-- Car info and rarity badge -->
+            <div class="post-title d-flex align-items-center p-2">
+                <div class="car-model fs-4 fw-bold">@post.CarModel</div>
+                @if (!string.IsNullOrEmpty(post.Rarity))
+                {
+                    <div class="ms-auto">
+                        <span class="badge bg-primary rounded-pill">@post.Rarity</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Post date -->
+            <div class="post-date p-2 text-muted">
+                @post.PostDate.ToString("dd/MM/yyyy")
+            </div>
+
+            <!-- Action buttons -->
+            <div class="post-actions d-flex justify-content-around p-2 border-top">
+                <div class="action-item d-flex align-items-center">
+                    <i class="bi bi-heart me-2"></i>
+                    <span>@post.LikesCount</span>
+                </div>
+                <div class="action-item d-flex align-items-center">
+                    <i class="bi bi-chat me-2"></i>
+                    <span>@post.CommentsCount</span>
+                </div>
+                <div class="action-item d-flex align-items-center">
+                    <i class="bi bi-share me-2"></i>
+                    <span>@post.SharesCount</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // Mock data for demonstration
+    List<CarPostViewModel> carPosts = new List<CarPostViewModel>
+    {
+        new CarPostViewModel 
+        { 
+            Username = "Kingnathanael9", 
+            UserProfilePic = "https://via.placeholder.com/150", 
+            ImageUrl = "https://www.topgear.com/sites/default/files/2022/08/TopGear%20-%20Bentley%20Continental%20GT%20-%20001.jpg", 
+            CarModel = "Bentley Continental GT", 
+            Rarity = "Rare", 
+            PostDate = new DateTime(2025, 3, 23), 
+            LikesCount = 0, 
+            CommentsCount = 0, 
+            SharesCount = 0 
+        },
+        new CarPostViewModel 
+        { 
+            Username = "CarEnthusiast", 
+            UserProfilePic = "https://via.placeholder.com/150", 
+            ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/2018_Lamborghini_Aventador_S_LP740-4_Roadster_6.5.jpg/1200px-2018_Lamborghini_Aventador_S_LP740-4_Roadster_6.5.jpg", 
+            CarModel = "Lamborghini Aventador", 
+            Rarity = "Legendary", 
+            PostDate = new DateTime(2025, 4, 5), 
+            LikesCount = 42, 
+            CommentsCount = 7, 
+            SharesCount = 3 
+        }
+    };
+
+    // View model for car posts
+    public class CarPostViewModel
+    {
+        public string Username { get; set; }
+        public string UserProfilePic { get; set; }
+        public string ImageUrl { get; set; }
+        public string CarModel { get; set; }
+        public string Rarity { get; set; }
+        public DateTime PostDate { get; set; }
+        public int LikesCount { get; set; }
+        public int CommentsCount { get; set; }
+        public int SharesCount { get; set; }
+    }
+}

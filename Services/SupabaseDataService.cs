@@ -3,6 +3,7 @@ using Supabase;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace CarspotLourd.Services
 {
@@ -80,6 +81,42 @@ namespace CarspotLourd.Services
             }
         }
         
+        // Récupérer les collections publiques uniquement
+        public async Task<List<UserCollection>> GetUserCollectionsPublicAsync()
+        {
+            try
+            {
+                if (_supabaseClient == null)
+                {
+                    InitializeClient();
+                    if (_supabaseClient == null)
+                    {
+                        // Retourner uniquement les collections publiques depuis les données fictives
+                        return GetDummyCollections().Where(c => c.IsPublic).ToList();
+                    }
+                }
+
+                var response = await _supabaseClient
+                    .From<UserCollection>()
+                    .Select("*")
+                    .Where(c => c.IsPublic == true)
+                    .Get();
+
+                Console.WriteLine($"Récupération réussie! {response.Models.Count} collections publiques trouvées.");
+                return response.Models;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération des collections publiques: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                // Retourner uniquement les collections publiques depuis les données fictives
+                return GetDummyCollections().Where(c => c.IsPublic).ToList();
+            }
+        }
+        
         // Récupération des modèles
         public async Task<List<Model>> GetModelsAsync()
         {
@@ -111,6 +148,12 @@ namespace CarspotLourd.Services
                 }
                 return GetDummyModels(); // Retourner des données fictives en cas d'erreur
             }
+        }
+        
+        // Récupérer les modèles pour l'affichage Instagram
+        public async Task<List<Model>> GetModelsDataAsync()
+        {
+            return await GetModelsAsync();
         }
 
         // Récupération des marques
@@ -144,6 +187,12 @@ namespace CarspotLourd.Services
                 }
                 return GetDummyBrands(); // Retourner des données fictives en cas d'erreur
             }
+        }
+        
+        // Récupérer les marques pour l'affichage Instagram
+        public async Task<List<Brand>> GetBrandsDataAsync()
+        {
+            return await GetBrandsAsync();
         }
 
         public async Task<string> GenerateCompleteHtmlTableAsync()
@@ -228,7 +277,7 @@ namespace CarspotLourd.Services
                 foreach (var item in collections)
                 {
                     // Trouver le modèle correspondant
-                    var model = models?.FirstOrDefault(m => m.Id == item.ModelId);
+                    var model = models?.FirstOrDefault(m => m.Id.ToString() == item.ModelId);
                     // Trouver la marque correspondante
                     var brand = model != null && model.BrandId.HasValue 
                         ? brands?.FirstOrDefault(b => b.Id == model.BrandId.Value)
@@ -378,33 +427,36 @@ namespace CarspotLourd.Services
             {
                 new UserCollection
                 {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                    UserId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
-                    ModelId = 1,     // 911 Carrera (Porsche)
+                    Id = Guid.Parse("590ed93e-f03a-4974-8f51-b6c350d58141"),
+                    UserId = "10000000-0000-0000-0000-000000000001",
+                    ModelId = "1",     // 911 Carrera (Porsche)
                     Spotted = true,
                     CreatedAt = DateTime.Now.AddDays(-5),
+                    DateCreated = DateTime.Now.AddDays(-5),
                     Location = "Paris, France",
                     IsPublic = true,
                     Superspot = false
                 },
                 new UserCollection
                 {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    UserId = Guid.Parse("10000000-0000-0000-0000-000000000002"),
-                    ModelId = 2,     // M3 Competition (BMW)
+                    Id = Guid.Parse("e7074003-e4c2-481c-a2f2-3ff2ce8b4738"),
+                    UserId = "10000000-0000-0000-0000-000000000002",
+                    ModelId = "2",     // M3 Competition (BMW)
                     Spotted = false,
                     CreatedAt = DateTime.Now.AddDays(-2),
+                    DateCreated = DateTime.Now.AddDays(-2),
                     Location = "Monaco",
                     IsPublic = true,
                     Superspot = true
                 },
                 new UserCollection
                 {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
-                    UserId = Guid.Parse("10000000-0000-0000-0000-000000000003"),
-                    ModelId = 3,     // Huracán Evo (Lamborghini)
+                    Id = Guid.Parse("d4c9a006-80b8-46af-ab6c-53902b155b94"),
+                    UserId = "10000000-0000-0000-0000-000000000003",
+                    ModelId = "3",     // Huracán Evo (Lamborghini)
                     Spotted = true,
                     CreatedAt = DateTime.Now.AddDays(-1),
+                    DateCreated = DateTime.Now.AddDays(-1),
                     Location = "Milan, Italie",
                     IsPublic = false,
                     Superspot = false

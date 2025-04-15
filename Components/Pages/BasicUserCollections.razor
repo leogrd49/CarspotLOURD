@@ -44,8 +44,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 1,
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "1",
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-5),
                 Location = "Paris",
@@ -55,8 +55,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 2,
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "2",
                 Spotted = false,
                 CreatedAt = DateTime.Now.AddDays(-2),
                 Location = "Lyon",
@@ -66,8 +66,8 @@
             new UserCollection
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ModelId = 3,
+                UserId = Guid.NewGuid().ToString(),
+                ModelId = "3",
                 Spotted = true,
                 CreatedAt = DateTime.Now.AddDays(-1),
                 Location = "Marseille",
