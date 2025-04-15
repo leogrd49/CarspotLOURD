@@ -190,7 +190,7 @@ namespace CarspotLourd.Services
                         margin: 0;
                     }
                     .container {
-                        max-width: 600px;
+                        max-width: 550px;
                         margin: 0 auto;
                         padding: 0;
                     }
@@ -198,7 +198,7 @@ namespace CarspotLourd.Services
                         background-color: white;
                         border: 1px solid #dbdbdb;
                         border-radius: 8px;
-                        margin-bottom: 20px;
+                        margin-bottom: 15px;
                         overflow: hidden;
                     }
                     .post-header {
@@ -227,10 +227,10 @@ namespace CarspotLourd.Services
                         width: 100%;
                         height: auto;
                         object-fit: cover;
-                        max-height: 600px;
+                        max-height: 500px;
                     }
                     .post-content {
-                        padding: 14px;
+                        padding: 12px;
                     }
                     .post-title {
                         display: flex;
@@ -341,20 +341,6 @@ namespace CarspotLourd.Services
                             </div>
                             <div class='post-description'>{post.Description}</div>
                             <div class='post-date'>{post.PostDate.ToString("dd/MM/yyyy")}</div>
-                            <div class='post-actions'>
-                                <div class='action-button'>
-                                    <i class='bi bi-heart action-icon'></i>
-                                    <span class='action-count'>{post.LikesCount}</span>
-                                </div>
-                                <div class='action-button'>
-                                    <i class='bi bi-chat action-icon'></i>
-                                    <span class='action-count'>{post.CommentsCount}</span>
-                                </div>
-                                <div class='action-button'>
-                                    <i class='bi bi-share action-icon'></i>
-                                    <span class='action-count'>{post.SharesCount}</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 ");
@@ -363,31 +349,9 @@ namespace CarspotLourd.Services
             // Bouton de création et pied de page
             sb.Append(@"
                 </div>
-                <button class='create-button'>
-                    <i class='bi bi-plus'></i>
-                </button>
                 <script>
-                    // JavaScript pour ajouter des comportements interactifs
+                    // JavaScript pour le bouton de déconnexion
                     document.addEventListener('DOMContentLoaded', function() {
-                        // Activer les boutons like
-                        document.querySelectorAll('.bi-heart').forEach(function(heart) {
-                            heart.addEventListener('click', function() {
-                                if (this.classList.contains('bi-heart-fill')) {
-                                    this.classList.remove('bi-heart-fill');
-                                    this.classList.add('bi-heart');
-                                    this.style.color = '#262626';
-                                    let count = this.nextElementSibling;
-                                    count.textContent = parseInt(count.textContent) - 1;
-                                } else {
-                                    this.classList.remove('bi-heart');
-                                    this.classList.add('bi-heart-fill');
-                                    this.style.color = '#ed4956';
-                                    let count = this.nextElementSibling;
-                                    count.textContent = parseInt(count.textContent) + 1;
-                                }
-                            });
-                        });
-                        
                         // Bouton de déconnexion
                         document.getElementById('logout').addEventListener('click', function() {
                             try {
