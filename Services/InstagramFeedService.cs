@@ -169,15 +169,16 @@ namespace CarspotLourd.Services
                 <style>
                     body {
                         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                        background-color: #fafafa;
+                        background-color: #000000;
+                        color: #ffffff;
                         padding: 0;
                         margin: 0;
                     }
                     .header {
                         position: sticky;
                         top: 0;
-                        background-color: white;
-                        border-bottom: 1px solid #dbdbdb;
+                        background-color: #121212;
+                        border-bottom: 1px solid #303030;
                         padding: 10px 15px;
                         display: flex;
                         justify-content: space-between;
@@ -188,6 +189,7 @@ namespace CarspotLourd.Services
                         font-size: 24px;
                         font-weight: bold;
                         margin: 0;
+                        color: #ffffff;
                     }
                     .container {
                         max-width: 550px;
@@ -195,8 +197,8 @@ namespace CarspotLourd.Services
                         padding: 0;
                     }
                     .post {
-                        background-color: white;
-                        border: 1px solid #dbdbdb;
+                        background-color: #121212;
+                        border: 1px solid #303030;
                         border-radius: 8px;
                         margin-bottom: 15px;
                         overflow: hidden;
@@ -205,7 +207,8 @@ namespace CarspotLourd.Services
                         display: flex;
                         align-items: center;
                         padding: 14px;
-                        border-bottom: 1px solid #efefef;
+                        border-bottom: 1px solid #303030;
+                        background-color: #121212;
                     }
                     .profile-pic {
                         width: 40px;
@@ -216,11 +219,11 @@ namespace CarspotLourd.Services
                     }
                     .username {
                         font-weight: 600;
-                        color: #262626;
+                        color: #ffffff;
                     }
                     .location {
                         font-size: 12px;
-                        color: #8e8e8e;
+                        color: #aaaaaa;
                         margin-top: 2px;
                     }
                     .post-image {
@@ -241,7 +244,7 @@ namespace CarspotLourd.Services
                     .car-model {
                         font-weight: 600;
                         font-size: 18px;
-                        color: #262626;
+                        color: #ffffff;
                     }
                     .rarity-badge {
                         padding: 4px 12px;
@@ -261,10 +264,10 @@ namespace CarspotLourd.Services
                     }
                     .post-description {
                         margin-bottom: 12px;
-                        color: #262626;
+                        color: #eeeeee;
                     }
                     .post-date {
-                        color: #8e8e8e;
+                        color: #aaaaaa;
                         font-size: 12px;
                         margin-bottom: 12px;
                     }
@@ -311,7 +314,7 @@ namespace CarspotLourd.Services
                 <div class='header'>
                     <h1>Carspot</h1>
                     <div class='header-actions'>
-                        <i class='bi bi-box-arrow-right' id='logout' style='font-size: 24px; cursor: pointer;' title='Déconnexion'></i>
+                        <i class='bi bi-box-arrow-right' id='logout' style='font-size: 24px; cursor: pointer; color: #ffffff;' title='Déconnexion'></i>
                     </div>
                 </div>
                 <div class='container'>
@@ -330,7 +333,7 @@ namespace CarspotLourd.Services
                                 <div class='location'>{post.Location}</div>
                             </div>
                             <div style='margin-left: auto;'>
-                                <i class='bi bi-three-dots'></i>
+                                <i class='bi bi-three-dots' style='color: #ffffff;'></i>
                             </div>
                         </div>
                         <img src='{post.ImageUrl}' alt='{post.CarBrand} {post.CarModel}' class='post-image'>
