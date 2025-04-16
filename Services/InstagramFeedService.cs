@@ -72,7 +72,8 @@ namespace CarspotLourd.Services
                     {
                         Username = "CarspotUser" + collection.UserId.Substring(0, 4),  // Simplification - dans un cas réel, vous récupéreriez le vrai nom d'utilisateur
                         UserProfilePic = "https://randomuser.me/api/portraits/" + (new Random().Next(2) == 0 ? "men" : "women") + "/" + new Random().Next(1, 99) + ".jpg",
-                        ImageUrl = "https://source.unsplash.com/featured/?" + brand.Name + "," + model.Name,  // Image aléatoire d'Unsplash
+                        // Utiliser uniquement l'URL d'image principale stockée dans la base de données
+                        ImageUrl = !string.IsNullOrEmpty(collection.ImageUrl) ? collection.ImageUrl : "https://source.unsplash.com/featured/?" + brand.Name + "," + model.Name,
                         CarModel = model.Name,
                         CarBrand = brand.Name,
                         Rarity = model.Rarity,
@@ -324,6 +325,15 @@ namespace CarspotLourd.Services
             foreach (var post in posts)
             {
                 string rarityClass = post.Rarity.ToLower();
+                // Créer le tag d'image séparément pour éviter les problèmes d'échappement
+                StringBuilder imageBuilder = new StringBuilder();
+                imageBuilder.Append("<img ");
+                imageBuilder.Append($"src='{post.ImageUrl}' ");
+                imageBuilder.Append($"alt='{post.CarBrand} {post.CarModel}' ");
+                imageBuilder.Append("class='post-image' ");
+                imageBuilder.Append("onerror=\"this.onerror=null;this.src='https://source.unsplash.com/featured/?car'\">");
+                string imageTag = imageBuilder.ToString(); 
+                
                 sb.Append($@"
                     <div class='post'>
                         <div class='post-header'>
@@ -336,7 +346,8 @@ namespace CarspotLourd.Services
                                 <i class='bi bi-three-dots' style='color: #ffffff;'></i>
                             </div>
                         </div>
-                        <img src='{post.ImageUrl}' alt='{post.CarBrand} {post.CarModel}' class='post-image'>
+                        <!-- Affichage de l'image principale uniquement -->
+                        {imageTag}
                         <div class='post-content'>
                             <div class='post-title'>
                                 <div class='car-model'>{post.CarBrand} {post.CarModel}</div>
